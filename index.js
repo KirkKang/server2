@@ -19,12 +19,31 @@ app.use(cors());
 app.use(express.json());
 app.use("/images",express.static(path.join(__dirname,"images")));
 
+app.get("/", (req, res) => {
+  res.send("Hello from Heroku!");
+});
+
+const fs = require("fs");
+
+const imagesDir = path.join(__dirname, "images");
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir);
+}
+
 const db = mysql.createConnection({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   port:3306
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error("無法連接到 MySQL:", err);
+    return;
+  }
+  console.log("成功連接到 MySQL");
 });
 
 const storage = multer.diskStorage({
@@ -55,7 +74,7 @@ app.post("/create",upload.single('image'),(req, res) => {
     (err, result) => {
       if (err) {
         console.log(err);
-        console.log(失敗);
+        console.log("失敗");
         res.status(500).send("Database error");
       } else {
         res.send("Values Inserted");
