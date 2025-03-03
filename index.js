@@ -5,18 +5,26 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 require("dotenv").config();
-const BASE_URL = process.env.BASE_URL || "http://localhost:3001";
+const PORT = process.env.PORT || 3001 ;
 
+app.get("/", (req, res) => {
+  res.send("Hello from Heroku!");
+});
+
+app.listen(PORT, () => {
+  console.log(`Yey, your server is running on port ${PORT}`);
+});
 
 app.use(cors());
 app.use(express.json());
 app.use("/images",express.static(path.join(__dirname,"images")));
 
 const db = mysql.createConnection({
-  user: "root",
-  host: "localhost",
-  password: "mysql3A917024",
-  database: "shopstoredb",
+  user: "process.env.DB_USER",
+  host: "process.env.DB_HOST",
+  password: "process.env.DB_PASS",
+  database: "process.env.DB_NAME",
+  port:3306
 });
 
 const storage = multer.diskStorage({
@@ -83,7 +91,7 @@ app.get("/products", (req, res) => {
     } else {
       const Products = result.map(emp => ({
         ...emp,
-        image: emp.Product_image? `${BASE_URL}/images/${emp.Product_image}` : null
+        image: emp.Product_image? `${PORT}/images/${emp.Product_image}` : null
       }));
       res.json(Products);
     }
@@ -117,6 +125,6 @@ app.get("/products", (req, res) => {
 //   });
 // });
 
-app.listen(3001, () => {
-  console.log("Yey, your server is running on port 3001");
-});
+// app.listen(3001, () => {
+//   console.log("Yey, your server is running on port 3001");
+// });
