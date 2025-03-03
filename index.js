@@ -46,6 +46,10 @@ db.connect((err) => {
   console.log("成功連接到 MySQL");
 });
 
+module.exports = db;
+console.log(process.env.DB_HOST);
+
+
 const storage = multer.diskStorage({
   destination: function(req,file,cb){
     return cb(null, path.join(__dirname,"images"));
