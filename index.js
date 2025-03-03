@@ -74,7 +74,8 @@ app.get("/products", (req, res) => {
     } else {
       const Products = result.map(emp => ({
         ...emp,
-        image: emp.Product_image? `${PORT}/images/${emp.Product_image}` : null
+        // image: emp.Product_image? `${PORT}/images/${emp.Product_image}` : null
+        image: emp.Product_image ? `${req.protocol}://${req.get("host")}/images/${emp.Product_image}` : null
       }));
       res.json(Products);
     }
