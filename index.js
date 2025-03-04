@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
@@ -27,22 +27,39 @@ if (!fs.existsSync(imagesDir)) {
   fs.mkdirSync(imagesDir);
 }
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
+  connectionLimit: 10,
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   port:process.env.DB_PORT,
+  waitForConnections: true,
+  queueLimit: 0,
   connectTimeout:10000
 });
 
-db.connect((err) => {
+// db.connect((err) => {
+//   if (err) {
+//     console.error("無法連接到 MySQL:", err);
+//     return;
+//   }
+//   console.log("成功連接到 MySQL");
+// });
+
+db.getConnection((err, connection) => {
   if (err) {
     console.error("無法連接到 MySQL:", err);
-    return;
+  } else {
+    console.log("成功連接到 MySQL");
+    connection.release();
   }
-  console.log("成功連接到 MySQL");
 });
+
+// 每 30 秒 ping 一次，防止連線超時
+setInterval(() => {
+  db.query('SELECT 1');
+}, 30000);
 
 module.exports = db;
 console.log(process.env.DB_HOST);
@@ -57,11 +74,35 @@ const storage = multer.diskStorage({
   }
 })
 
-const upload = multer({storage:storage});
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 限制檔案大小 5MB
+});
 
 
 
+function handleDisconnect() {
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error("MySQL 連線錯誤，5 秒後重試...", err);
+      setTimeout(handleDisconnect, 5000);
+    } else {
+      console.log("成功重新連接到 MySQL");
+      connection.release();
+    }
+  });
 
+  db.on('error', function (err) {
+    console.error("MySQL 發生錯誤", err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      console.log("重新連接 MySQL...");
+      handleDisconnect();
+    } else {
+      throw err;
+    }
+  });
+}
+handleDisconnect();
 
 
 app.post("/create",upload.single('image'),(req, res) => {
