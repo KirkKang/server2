@@ -293,7 +293,9 @@ app.post("/api/login",(req,res)=>{
 //     }
 //     return res.json({ loggedIn: true, user: decoded });
 //   });
-// });
+// });   
+
+
 
 app.get('/api/logout', (req, res) => {
   res.clearCookie("token", {
