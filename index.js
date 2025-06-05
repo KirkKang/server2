@@ -94,41 +94,37 @@ if (!fs.existsSync(imagesDir)) {
 // });
 
 //本機
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   timezone: process.env.DB_TIMEZONE,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-db.connect((err) => {
+db.query("SET time_zone = '+08:00'", (err) => {
   if (err) {
-    console.error("MySQL 連線錯誤:", err);
+    console.error("設定時區失敗:", err);
   } else {
-    console.log("成功連接到 MySQL");
-    db.query("SET time_zone = '+08:00'", (err) => {
-      if (err) {
-        console.error("設定時區失敗:", err);
-      } else {
-        console.log("成功設定 MySQL session 時區為 +08:00");
-      }
-    });
+    console.log("成功設定 MySQL session 時區為 +08:00");
   }
 });
   
 
-const storage = multer.diskStorage({
-  destination: function(req,file,cb){
-    return cb(null, path.join(__dirname,"images"));
-  },
-  filename: function (req,file,cb) {
-    return cb(null, `${Date.now()}_${file.originalname}`)
-  }
-})
+// const storage = multer.diskStorage({
+//   destination: function(req,file,cb){
+//     return cb(null, path.join(__dirname,"images"));
+//   },
+//   filename: function (req,file,cb) {
+//     return cb(null, `${Date.now()}_${file.originalname}`)
+//   }
+// })
 
-const upload = multer({storage:storage});
+// const upload = multer({storage:storage});
 
 
 
