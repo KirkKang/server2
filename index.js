@@ -295,13 +295,15 @@ app.post("/api/login",(req,res)=>{
 //   });
 // });
 
-
-res.clearCookie("token", {
-  httpOnly: true,
-  secure: true,
-  sameSite: "None"
+app.get('/api/logout', (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,       
+    sameSite: "None"
+  });
+  return res.json({ Status: "成功" });
 });
-res.json({ Status: "成功" });
+
 
 app.get('/api/check-auth', (req, res) => {
   const token = req.cookies.token;
