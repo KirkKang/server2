@@ -301,7 +301,7 @@ app.get('/api/logout', (req, res) => {
     secure: true,       
     sameSite: "None"
   });
-  return res.json({ Status: "登出成功" });
+  return res.json({ Status: "登出成功了" });
 });
 
 
