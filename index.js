@@ -229,7 +229,9 @@ app.post("/api/login",(req,res)=>{
             res.cookie('token',token,{
               httpOnly:true,
               maxAge: 60*60*1000,  
-              sameSite: 'strict' // 允許同一個頁面請求才會附加cookie 防止CSRF
+              // sameSite: 'strict' // 允許同一個頁面請求才會附加cookie 防止CSRF
+              sameSite: 'None',
+              secure:true
             });
 
             const cartSql = "SELECT * FROM cart WHERE user_id = ?";
