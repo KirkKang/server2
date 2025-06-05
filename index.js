@@ -296,10 +296,12 @@ app.post("/api/login",(req,res)=>{
 // });
 
 
-app.get("/api/logout",(req,res)=>{
-  res.clearCookie('token');
-  return res.json({Status:"成功"})
-})
+res.clearCookie("token", {
+  httpOnly: true,
+  secure: true,
+  sameSite: "None"
+});
+res.json({ Status: "成功" });
 
 app.get('/api/check-auth', (req, res) => {
   const token = req.cookies.token;
