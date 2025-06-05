@@ -142,7 +142,7 @@ app.get("/api/products", (req, res) => {
       id: product.Product_ID,
       name: product.Product_name,
       price: product.price,
-      image: `${req.protocol}://${req.get("host")}/images/${product.Image}`,
+      image: `https://product-production-b8fb.up.railway.app/uploads/${product.Image}`,
       quantity: product.quantity,
       Product_introduction: product.Product_introduction,
       Type: product.Type,
